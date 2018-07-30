@@ -1,0 +1,41 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "poc-graphql server",
+  "main": "./src/app.js",
+  "scripts": {
+    "start": "npm run lint && nodemon --nolazy --require @babel/register --require @babel/polyfill --inspect-brk=9229 ./src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src"
+  },
+  "author": "Mitchell Monaghan",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.0.0",
+    "graphql": "^0.13.2",
+    "graphql-yoga": "^1.14.12",
+    "jsonwebtoken": "^8.3.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "mongoose": "^5.2.5",
+    "mongoose-bcrypt": "^1.5.1",
+    "mongoose-delete": "^0.4.0",
+    "mongoose-timestamp": "^0.6.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/node": "^7.0.0-beta.54",
+    "@babel/polyfill": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/register": "^7.0.0-beta.54",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "eslint": "^5.2.0",
+    "eslint-config-standard": "^12.0.0-alpha.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "nodemon": "^1.18.3"
+  }
+}
