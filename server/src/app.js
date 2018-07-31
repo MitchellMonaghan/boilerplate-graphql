@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import config from '@config'
 import mongoose from 'mongoose'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server'
 
@@ -8,10 +8,8 @@ import typeDefs from './graphql/typeDefs'
 import resolvers from './graphql/resolvers'
 const schema = makeExecutableSchema({ typeDefs, resolvers })
 
-dotenv.config()
-
 // Connect to database
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true })
+mongoose.connect(config.mongoURI, { useNewUrlParser: true })
 mongoose.connection.once('open', () => {
   console.log('Conected to database')
 })
@@ -34,6 +32,6 @@ const server = new ApolloServer({
   }
 })
 
-server.listen({ port: process.env.PORT }).then(({ url }) => {
+server.listen({ port: config.port }).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`)
 })

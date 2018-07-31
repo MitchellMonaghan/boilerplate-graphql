@@ -1,4 +1,4 @@
-import moduleLoader from '@root/src/moduleLoader'
+import moduleLoader from '@services/moduleLoader'
 
 const schemas = moduleLoader('./src/modules', 'schema')
 

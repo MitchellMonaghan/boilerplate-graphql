@@ -1,3 +1,4 @@
+import config from '@config'
 import { AuthenticationError, UserInputError } from 'apollo-server'
 
 import User from '@modules/user/model'
@@ -9,7 +10,7 @@ const generateJWT = async (user) => {
     user: pick(user, ['id'])
   })
 
-  return jwt.sign(props, process.env.AUTH_SECRET, { expiresIn: process.env.TOKEN_EXPIRES_IN })
+  return jwt.sign(props, config.authSecret, { expiresIn: config.tokenExipresIn })
 }
 
 const authenticateUser = async (username, password) => {
@@ -55,7 +56,7 @@ const refreshToken = async (user) => {
 
 const authorizeUser = async (token) => {
   try {
-    const decoded = jwt.verify(token, process.env.AUTH_SECRET)
+    const decoded = jwt.verify(token, config.authSecret)
     return await User.findById(decoded.user.id)
   } catch (error) {
     return null

@@ -16,6 +16,7 @@
     "graphql": "^0.13.2",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
+    "mailgun-js": "^0.20.0",
     "moment": "^2.22.2",
     "mongoose": "^5.2.5",
     "mongoose-bcrypt": "^1.5.1",

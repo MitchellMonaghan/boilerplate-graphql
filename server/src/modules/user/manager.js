@@ -1,6 +1,7 @@
 
 import User from './model'
 import crypto from 'crypto'
+import mailer from '@services/mailer'
 
 const createUser = async (args) => {
   const user = new User(args)
@@ -19,7 +20,7 @@ const createUser = async (args) => {
 
   const newUser = await user.save()
 
-  // TODO: Send verify email
+  mailer.sendEmail(mailer.emailEnum.verifyEmail, [user.email], user)
   return newUser
 }
 

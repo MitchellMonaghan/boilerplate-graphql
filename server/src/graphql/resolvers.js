@@ -1,6 +1,6 @@
 
 import { merge } from 'lodash'
-import moduleLoader from '@root/src/moduleLoader'
+import moduleLoader from '@services/moduleLoader'
 
 const moduleResolvers = moduleLoader('./src/modules', 'resolvers')
 
