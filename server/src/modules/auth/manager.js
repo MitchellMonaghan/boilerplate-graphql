@@ -81,11 +81,19 @@ const forgotPassword = async (email) => {
   return 'Email sent'
 }
 
+const verifyEmail = async (user) => {
+  user.confirmed = true
+  user.save()
+
+  return 'Email confirmed'
+}
+
 const publicProps = {
   authorizeUser,
   authenticateUser,
   refreshToken,
-  forgotPassword
+  forgotPassword,
+  verifyEmail
 }
 
 module.exports = publicProps
