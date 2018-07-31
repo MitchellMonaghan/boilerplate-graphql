@@ -1,4 +1,4 @@
-import { AuthenticationError } from 'apollo-server'
+import { AuthenticationError, UserInputError } from 'apollo-server'
 
 import User from '@modules/user/model'
 import jwt from 'jsonwebtoken'
@@ -15,7 +15,7 @@ const generateJWT = async (user) => {
 const authenticateUser = async (username, password) => {
   username = username.toLowerCase().trim()
 
-  // To lowercase stored username in query
+  // Searching on username case insensitive
   const user = await User.findOne({
     $or: [
       { username: { $regex: new RegExp(`^${username}`, 'i') } },
@@ -24,15 +24,22 @@ const authenticateUser = async (username, password) => {
   }).exec()
 
   if (!user) {
-    // TODO: User not found, return proper http status code
-    throw new Error('No user with that username')
+    throw new UserInputError('Username or email not found', {
+      invalidArgs: [
+        'username',
+        'email'
+      ]
+    })
   }
 
-  // TODO: Invalid password, return proper http status code
   const isValid = await user.verifyPassword(password)
 
   if (!isValid) {
-    throw new Error('Incorrect password')
+    return new UserInputError('Incorrect password', {
+      invalidArgs: [
+        'password'
+      ]
+    })
   }
 
   return generateJWT(user)

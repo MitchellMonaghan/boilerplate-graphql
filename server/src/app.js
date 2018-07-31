@@ -1,10 +1,12 @@
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
-import { GraphQLServer, PubSub } from 'graphql-yoga'
+import { ApolloServer, makeExecutableSchema } from 'apollo-server'
 
 import { authorizeUser } from '@modules/auth/manager'
 
-import graphql from './graphql'
+import typeDefs from './graphql/typeDefs'
+import resolvers from './graphql/resolvers'
+const schema = makeExecutableSchema({ typeDefs, resolvers })
 
 dotenv.config()
 
@@ -14,35 +16,24 @@ mongoose.connection.once('open', () => {
   console.log('Conected to database')
 })
 
-// Setup up the graphql context for every request
-graphql.context = async (req) => {
-  const request = req.request
-  let user
+const server = new ApolloServer({
+  schema,
+  context: async (req) => {
+    const request = req.req
+    let user
 
-  if (request && request.headers.authorization) {
-    user = await authorizeUser(request.headers.authorization)
-  } else {
-    // TODO: Figure out how to authenticate websocket connections
+    if (request && request.headers.authorization) {
+      user = await authorizeUser(request.headers.authorization)
+    } else {
+      // TODO: Figure out how to authenticate websocket connections
+    }
+
+    return {
+      user
+    }
   }
+})
 
-  return {
-    user,
-    pubsub: new PubSub()
-  }
-}
-
-const server = new GraphQLServer(graphql)
-server.start(
-  {
-    // Server options
-    port: process.env.PORT,
-    endpoint: '/graphql',
-    subscriptions: '/subscriptions',
-    playground: '/playground'
-  },
-
-  ({ port }) => {
-    // Server start call back
-    console.log(`🚀  Server ready on ${port}`)
-  }
-)
+server.listen({ port: process.env.PORT }).then(({ url }) => {
+  console.log(`🚀  Server ready at ${url}`)
+})

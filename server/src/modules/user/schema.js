@@ -1,4 +1,7 @@
-export const types = `
+
+const gql = String.raw
+
+export const types = gql`
   type User {
     id: ID!
     firstName: String
@@ -8,9 +11,9 @@ export const types = `
   }
 `
 
-export const queries = ``
+export const queries = gql``
 
-export const mutations = `
+export const mutations = gql`
   createUser(firstName: String, lastName: String, username: String, email: String!, password: String!): User
 
   updateUser(firstName: String, lastName: String, email: String!, password: String!): User
@@ -18,4 +21,4 @@ export const mutations = `
   deleteUser(firstName: String, lastName: String, email: String!, password: String!): User
 `
 
-export const subscriptions = ``
+export const subscriptions = gql``
