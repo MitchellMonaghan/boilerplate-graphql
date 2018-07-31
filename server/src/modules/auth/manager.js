@@ -2,7 +2,6 @@ import { AuthenticationError } from 'apollo-server'
 
 import User from '@modules/user/model'
 import jwt from 'jsonwebtoken'
-import moment from 'moment'
 import { pick } from 'lodash'
 
 const generateJWT = async (user) => {
@@ -10,10 +9,7 @@ const generateJWT = async (user) => {
     user: pick(user, ['id'])
   })
 
-  // TODO: Customize token expiration
-  const expiresIn = moment().add(100, 'year').format('X')
-
-  return jwt.sign(props, process.env.AUTH_SECRET, { expiresIn })
+  return jwt.sign(props, process.env.AUTH_SECRET, { expiresIn: process.env.TOKEN_EXPIRES_IN })
 }
 
 const authenticateUser = async (username, password) => {
