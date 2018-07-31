@@ -1,9 +1,11 @@
+import { AuthenticationError } from 'apollo-server'
+
 import User from '@modules/user/model'
 import jwt from 'jsonwebtoken'
 import moment from 'moment'
 import { pick } from 'lodash'
 
-function generateJWT (user) {
+const generateJWT = async (user) => {
   const props = Object.assign({}, {
     user: pick(user, ['id'])
   })
@@ -14,7 +16,7 @@ function generateJWT (user) {
   return jwt.sign(props, process.env.AUTH_SECRET, { expiresIn })
 }
 
-export const authenticateUser = async (username, password) => {
+const authenticateUser = async (username, password) => {
   username = username.toLowerCase().trim()
 
   // To lowercase stored username in query
@@ -40,7 +42,15 @@ export const authenticateUser = async (username, password) => {
   return generateJWT(user)
 }
 
-export const authorizeUser = async (token) => {
+const refreshToken = async (user) => {
+  if (user) {
+    return generateJWT(user)
+  } else {
+    throw new AuthenticationError('Token invalid please authenticate.')
+  }
+}
+
+const authorizeUser = async (token) => {
   try {
     const decoded = jwt.verify(token, process.env.AUTH_SECRET)
     return await User.findById(decoded.user.id)
@@ -49,7 +59,11 @@ export const authorizeUser = async (token) => {
   }
 }
 
-export default {
+const publicProps = {
   authenticateUser,
+  refreshToken,
   authorizeUser
 }
+
+module.exports = publicProps
+export default publicProps

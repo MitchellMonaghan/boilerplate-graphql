@@ -2,7 +2,7 @@
 import User from './model'
 import crypto from 'crypto'
 
-export const createUser = async (args) => {
+const createUser = async (args) => {
   const user = new User(args)
   user.email = user.email.toLowerCase().trim()
 
@@ -22,3 +22,10 @@ export const createUser = async (args) => {
   // TODO: Send verify email
   return newUser
 }
+
+const publicProps = {
+  createUser
+}
+
+module.exports = publicProps
+export default publicProps
