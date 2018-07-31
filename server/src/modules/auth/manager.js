@@ -34,7 +34,8 @@ const authenticateUser = async (username, password) => {
     ]
   }).exec()
 
-  if (!user) {
+  // You can only login if confirmed
+  if (!user || (user && !user.confirmed)) {
     throw new UserInputError('Username or email not found', {
       invalidArgs: [
         'username',
@@ -67,7 +68,7 @@ const refreshToken = async (user) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email }).exec()
 
-  if (!user) {
+  if (!user || (user && !user.confirmed)) {
     throw new UserInputError('Email not found', {
       invalidArgs: [
         'email'
