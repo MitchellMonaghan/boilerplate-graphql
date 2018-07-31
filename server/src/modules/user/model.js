@@ -21,8 +21,7 @@ export const attributes = {
     required: true,
     bcrypt: true
   },
-  confirmed: { type: Boolean, default: false },
-  pendingToken: String
+  confirmed: { type: Boolean, default: false }
 }
 
 const UserSchema = new mongoose.Schema(attributes, { minimize: false })

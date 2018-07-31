@@ -3,6 +3,7 @@ import { AuthenticationError, UserInputError } from 'apollo-server'
 
 import User from '@modules/user/model'
 import jwt from 'jsonwebtoken'
+import mailer from '@services/mailer'
 import { pick } from 'lodash'
 
 const generateJWT = async (user) => {
@@ -11,6 +12,15 @@ const generateJWT = async (user) => {
   })
 
   return jwt.sign(props, config.authSecret, { expiresIn: config.tokenExipresIn })
+}
+
+const authorizeUser = async (token) => {
+  try {
+    const decoded = jwt.verify(token, config.authSecret)
+    return await User.findById(decoded.user.id)
+  } catch (error) {
+    return null
+  }
 }
 
 const authenticateUser = async (username, password) => {
@@ -54,19 +64,28 @@ const refreshToken = async (user) => {
   }
 }
 
-const authorizeUser = async (token) => {
-  try {
-    const decoded = jwt.verify(token, config.authSecret)
-    return await User.findById(decoded.user.id)
-  } catch (error) {
-    return null
+const forgotPassword = async (email) => {
+  const user = await User.findOne({ email }).exec()
+
+  if (!user) {
+    throw new UserInputError('Email not found', {
+      invalidArgs: [
+        'email'
+      ]
+    })
   }
+
+  user.forgotPasswordToken = await generateJWT(user)
+
+  mailer.sendEmail(mailer.emailEnum.forgotPassword, [email], user)
+  return 'Email sent'
 }
 
 const publicProps = {
+  authorizeUser,
   authenticateUser,
   refreshToken,
-  authorizeUser
+  forgotPassword
 }
 
 module.exports = publicProps
