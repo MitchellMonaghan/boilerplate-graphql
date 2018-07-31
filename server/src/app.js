@@ -24,7 +24,7 @@ const server = new ApolloServer({
       user = await authorizeUser(request.headers.authorization)
 
       // Only do this check if a real user token was provided
-      if(user) {
+      if (user) {
         // If the user is not confirmed they are only allowed to
         // access the verifyEmail query as authenticated
         const accessingVerifyEmail = request.body.query.includes(verifyEmail.name)
