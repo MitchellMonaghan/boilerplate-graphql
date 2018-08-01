@@ -11,13 +11,18 @@ const generateJWT = async (user) => {
     user: pick(user, ['id'])
   })
 
-  return jwt.sign(props, config.authSecret, { expiresIn: config.tokenExipresIn })
+  // Sign token with a combination of authSecret and user password
+  // This way both the server and the user has the ability to invalidate all tokens
+  return jwt.sign(props, `${config.authSecret}${user.password}`, { expiresIn: config.tokenExipresIn })
 }
 
-const authorizeUser = async (token) => {
+const getUserFromToken = async (token) => {
   try {
-    const decoded = jwt.verify(token, config.authSecret)
-    return await User.findById(decoded.user.id)
+    const decoded = jwt.decode(token)
+    const user = await User.findById(decoded.user.id)
+
+    jwt.verify(token, `${config.authSecret}${user.password}`)
+    return user
   } catch (error) {
     return null
   }
@@ -83,14 +88,19 @@ const forgotPassword = async (email) => {
 }
 
 const verifyEmail = async (user) => {
-  user.confirmed = true
-  user.save()
+  if (user) {
+    user.confirmed = true
+    user.save()
+  } else {
+    throw new AuthenticationError('Token invalid please signup again.')
+  }
 
   return 'Email confirmed'
 }
 
 const publicProps = {
-  authorizeUser,
+  generateJWT,
+  getUserFromToken,
   authenticateUser,
   refreshToken,
   forgotPassword,

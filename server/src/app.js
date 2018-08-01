@@ -2,7 +2,7 @@ import config from '@config'
 import mongoose from 'mongoose'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server'
 
-import { authorizeUser, verifyEmail } from '@modules/auth/manager'
+import { getUserFromToken, verifyEmail } from '@modules/auth/manager'
 
 import typeDefs from './graphql/typeDefs'
 import resolvers from './graphql/resolvers'
@@ -21,7 +21,7 @@ const server = new ApolloServer({
     let user
 
     if (request && request.headers.authorization) {
-      user = await authorizeUser(request.headers.authorization)
+      user = await getUserFromToken(request.headers.authorization)
 
       // Only do this check if a real user token was provided
       if (user) {

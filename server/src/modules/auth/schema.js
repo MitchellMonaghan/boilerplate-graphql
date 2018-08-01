@@ -6,9 +6,10 @@ export const queries = gql`
   authenticateUser(username: String!, password: String!): String!
   refreshToken: String!
   forgotPassword(email: String!): String!
-  verifyEmail: String!
 `
 
-export const mutations = gql``
+export const mutations = gql`
+  verifyEmail: String!
+`
 
 export const subscriptions = gql``
