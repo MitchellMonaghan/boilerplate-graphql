@@ -35,7 +35,7 @@ const createUser = async (args) => {
   }
 
   // Generate token for verify email
-  userInDatabase.verifyEmailToken = generateJWT(userInDatabase)
+  userInDatabase.verifyEmailToken = await generateJWT(userInDatabase)
 
   mailer.sendEmail(mailer.emailEnum.verifyEmail, [userInDatabase.email], userInDatabase)
 

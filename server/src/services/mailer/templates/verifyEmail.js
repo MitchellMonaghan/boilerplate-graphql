@@ -1,13 +1,23 @@
+import config from '@config'
+
 export default (data) => {
+  let displayName = data.username
+
+  if (data.firstName && data.lastName) {
+    displayName = `${data.firstName} ${data.lastName}`
+  }
+
+  const verifyEmailUrl = `${config.appUrl}/verifyEmail?token=${data.verifyEmailToken}`
+
   // TODO: Populate verifyEmail template
-  const subject = 'Please confirm your email with Scent Scholar.'
+  const subject = `Please confirm your email with ${config.productName}.`
   const html = `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Welcome to [Product Name], {{name}}!</title>
+        <title>Welcome to ${config.productName}, ${displayName}!</title>
         <!-- 
         The style block is collapsed on page load to save you some scrolling.
         Postmark automatically inlines all CSS properties for maximum email client 
@@ -396,16 +406,17 @@ export default (data) => {
         </style>
       </head>
       <body>
-        <span class="preheader">Thanks for trying out [Product Name]. We’ve pulled together some information and resources to help you get started.</span>
+        <span class="preheader">Thanks for trying out ${config.productName}. Please click the link below to verify your email.</span>
+
         <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td align="center">
               <table class="email-content" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="email-masthead">
-                    <a href="https://example.com" class="email-masthead_name">
-            [Product Name]
-          </a>
+                    <a href="${config.appUrl}" class="email-masthead_name">
+                      ${config.productName}
+                    </a>
                   </td>
                 </tr>
                 <!-- Email Body -->
@@ -415,22 +426,24 @@ export default (data) => {
                       <!-- Body content -->
                       <tr>
                         <td class="content-cell">
-                          <h1>Welcome, ${data.firstName}!</h1>
-                          <p>Thanks for trying [Product Name]. We’re thrilled to have you on board.</p>
-                          <p>To get the most out of [Product Name], do this primary next step:</p>
+                          <h1>Welcome, ${displayName}!</h1>
+                          <p>Thanks for trying ${config.productName}. We’re thrilled to have you on board.</p>
+                          <p>To get the most out of ${config.productName}, do this primary next step:</p>
+
                           <!-- Action -->
                           <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                               <td align="center">
-                                <!-- Border based button
-                          https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+                                <!-- Border based button https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
                                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                   <tr>
                                     <td align="center">
                                       <table border="0" cellspacing="0" cellpadding="0">
                                         <tr>
                                           <td>
-                                            <a href="{{action_url}}" class="button button--" target="_blank">Do this Next</a>
+                                            <a href="${verifyEmailUrl}" class="button button--" target="_blank">
+                                              Click this link to verify your email.
+                                            </a>
                                           </td>
                                         </tr>
                                       </table>
@@ -440,46 +453,33 @@ export default (data) => {
                               </td>
                             </tr>
                           </table>
+
                           <p>For reference, here's your login information:</p>
                           <table class="attributes" width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                               <td class="attributes_content">
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                   <tr>
-                                    <td class="attributes_item"><strong>Login Page:</strong> {{login_url}}</td>
+                                    <td class="attributes_item"><strong>Login Page:</strong> ${config.appUrl}/login</td>
                                   </tr>
                                   <tr>
-                                    <td class="attributes_item"><strong>Username:</strong> {{username}}</td>
+                                    <td class="attributes_item"><strong>Username:</strong> ${data.username}</td>
                                   </tr>
                                 </table>
                               </td>
                             </tr>
                           </table>
-                          <p>You've started a {{trial_length}} day trial. You can upgrade to a paying account or cancel any time.</p>
-                          <table class="attributes" width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td class="attributes_content">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                  <tr>
-                                    <td class="attributes_item"><strong>Trial Start Date:</strong> {{trial_start_date}}</td>
-                                  </tr>
-                                  <tr>
-                                    <td class="attributes_item"><strong>Trial End Date:</strong> {{trial_end_date}}</td>
-                                  </tr>
-                                </table>
-                              </td>
-                            </tr>
-                          </table>
-                          <p>If you have any questions, feel free to <a href="mailto:{{support_email}}">email our customer success team</a>. (We're lightning quick at replying.) We also offer <a href="{{live_chat_url}}">live chat</a> during business hours.</p>
+
+                          <p>If you have any questions, feel free to <a href="mailto:${config.mailgunSender}">email our customer success team</a>. We're lightning quick at replying.</p>
                           <p>Thanks,
-                            <br>[Sender Name] and the [Product Name] Team</p>
-                          <p><strong>P.S.</strong> Need immediate help getting started? Check out our <a href="{{help_url}}">help documentation</a>. Or, just reply to this email, the [Product Name] support team is always ready to help!</p>
+                            <br>The ${config.productName} Team</p>
+
                           <!-- Sub copy -->
                           <table class="body-sub">
                             <tr>
                               <td>
                                 <p class="sub">If you’re having trouble with the button above, copy and paste the URL below into your web browser.</p>
-                                <p class="sub">{{action_url}}</p>
+                                <p class="sub">${verifyEmailUrl}</p>
                               </td>
                             </tr>
                           </table>
@@ -493,11 +493,9 @@ export default (data) => {
                     <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0">
                       <tr>
                         <td class="content-cell" align="center">
-                          <p class="sub align-center">&copy; 2017 [Product Name]. All rights reserved.</p>
+                          <p class="sub align-center">&copy; 2017 ${config.productName}. All rights reserved.</p>
                           <p class="sub align-center">
-                            [Company Name, LLC]
-                            <br>1234 Street Rd.
-                            <br>Suite 1234
+                            ${config.companyName}, LLC
                           </p>
                         </td>
                       </tr>
