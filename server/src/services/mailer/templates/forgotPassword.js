@@ -9,7 +9,6 @@ export default (data) => {
 
   const forgotPasswordUrl = `${config.appUrl}/resetPassword?token=${data.forgotPasswordToken}`
 
-  // TODO: Populate forgotPassword template
   const subject = `Password reset ${config.productName}.`
   const html = `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
