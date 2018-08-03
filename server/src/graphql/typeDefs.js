@@ -1,12 +1,14 @@
-import moduleLoader from './moduleLoader'
+import { loadModules } from '@services/moduleLoader'
 
-const schemas = moduleLoader('./src/modules', 'schema')
+const schemas = loadModules('./src/modules', 'schema')
 
 const types = []
 const queries = []
 const mutations = []
 
-schemas.forEach((schema) => {
+Object.keys(schemas).forEach((schemaKey) => {
+  const schema = schemas[schemaKey]
+
   types.push(schema.types)
   queries.push(schema.queries)
   mutations.push(schema.mutations)

@@ -8,6 +8,8 @@ export default {
   },
 
   Mutation: {
+    registerUser: async (root, args, context, info) => manager.registerUser(args),
+    inviteUser: async (root, args, context, info) => manager.inviteUser(args, context.user),
     verifyEmail: async (root, args, context, info) => manager.verifyEmail(context.user)
   }
 }

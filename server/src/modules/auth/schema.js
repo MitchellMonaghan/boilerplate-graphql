@@ -9,6 +9,8 @@ export const queries = gql`
 `
 
 export const mutations = gql`
+  registerUser(firstName: String, lastName: String, username: String, email: String!, password: String!): String!
+  inviteUser(email: String!): String!
   verifyEmail: String!
 `
 

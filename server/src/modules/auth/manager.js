@@ -1,11 +1,19 @@
 import config from '@config'
+import uuid from 'uuid/v4'
+import jwt from 'jsonwebtoken'
+import { pick } from 'lodash'
 import { AuthenticationError, UserInputError } from 'apollo-server'
 
-import User from '@modules/user/model'
-import jwt from 'jsonwebtoken'
 import mailer from '@services/mailer'
-import { pick } from 'lodash'
 
+import User from '@modules/user/model'
+import userManager from '@modules/user/manager'
+
+// Private functions
+
+// End private functions
+
+// Public functions
 const generateJWT = async (user) => {
   const props = Object.assign({}, {
     user: pick(user, ['id'])
@@ -70,6 +78,31 @@ const refreshToken = async (user) => {
   }
 }
 
+const registerUser = async (args) => {
+  const user = await userManager.createUser(args)
+
+  user.verifyEmailToken = await generateJWT(user)
+  mailer.sendEmail(mailer.emailEnum.verifyEmail, [user.email], user)
+
+  return 'User created, we will email you to verify your email.'
+}
+
+const inviteUser = async (args, user) => {
+  // TODO: We need to clean up all these if user is set checks as we are going to need to do
+  // this alot. This should probably be a directive on routes that need to be authenticated
+  if (user) {
+    args.password = uuid()
+    const invitedUser = await userManager.createUser(args)
+
+    invitedUser.verifyEmailToken = await generateJWT(invitedUser)
+    mailer.sendEmail(mailer.emailEnum.invite, [invitedUser.email], { invitedUser, invitee: user })
+  } else {
+    throw new AuthenticationError('Token invalid please authenticate.')
+  }
+
+  return `We have invited ${inviteUser.email}.`
+}
+
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email }).exec()
 
@@ -97,12 +130,15 @@ const verifyEmail = async (user) => {
 
   return 'Email confirmed'
 }
+// End public functions
 
 const publicProps = {
   generateJWT,
   getUserFromToken,
   authenticateUser,
   refreshToken,
+  registerUser,
+  inviteUser,
   forgotPassword,
   verifyEmail
 }

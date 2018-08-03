@@ -2,10 +2,9 @@
 import { UserInputError } from 'apollo-server'
 
 import User from './model'
-import mailer from '@services/mailer'
-import { generateJWT } from '@modules/auth/manager'
 
 const createUser = async (args) => {
+  // TODO: validate args.email
   let userInDatabase = await User.findOne({ email: args.email }).exec()
 
   if (!userInDatabase) {
@@ -33,11 +32,6 @@ const createUser = async (args) => {
       ]
     })
   }
-
-  // Generate token for verify email
-  userInDatabase.verifyEmailToken = await generateJWT(userInDatabase)
-
-  mailer.sendEmail(mailer.emailEnum.verifyEmail, [userInDatabase.email], userInDatabase)
 
   return userInDatabase
 }

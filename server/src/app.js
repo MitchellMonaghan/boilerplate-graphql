@@ -40,6 +40,7 @@ const server = new ApolloServer({
   }
 })
 
+// TODO: Add logging winston/morgan
 server.listen({ port: config.port }).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`)
 })

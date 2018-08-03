@@ -1,11 +1,12 @@
 
 import { merge } from 'lodash'
-import moduleLoader from './moduleLoader'
+import { loadModules } from '@services/moduleLoader'
 
-const moduleResolvers = moduleLoader('./src/modules', 'resolvers')
+const moduleResolvers = loadModules('./src/modules', 'resolvers')
 
 const resolvers = {}
-moduleResolvers.forEach(resolver => {
+Object.keys(moduleResolvers).forEach(resolverKey => {
+  const resolver = moduleResolvers[resolverKey]
   merge(resolvers, resolver.default)
 })
 

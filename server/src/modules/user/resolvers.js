@@ -5,6 +5,7 @@ export default {
   },
 
   Mutation: {
-    createUser: async (root, args, context, info) => manager.createUser(args)
+    updateUser: async (root, args, context, info) => manager.updateUser(args),
+    deleteUser: async (root, args, context, info) => manager.deleteUser(args)
   }
 }

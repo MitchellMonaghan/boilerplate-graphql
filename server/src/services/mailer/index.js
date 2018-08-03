@@ -1,14 +1,11 @@
 import config from '@config'
+import path from 'path'
 import mailgun from 'mailgun-js'
 
-// Templates
-import verifyEmail from './templates/verifyEmail'
-import forgotPassword from './templates/forgotPassword'
+import { loadFolder } from '@services/moduleLoader'
 
-const emailTemplates = {
-  verifyEmail,
-  forgotPassword
-}
+// Templates
+const emailTemplates = loadFolder(path.join(__dirname, './templates'))
 
 const mailgunClient = mailgun({
   apiKey: config.mailgunAPIKey,
@@ -16,7 +13,7 @@ const mailgunClient = mailgun({
 })
 
 const sendEmail = (templateName, recipients, data) => {
-  let email = emailTemplates[templateName](data)
+  let email = emailTemplates[templateName].default(data)
   email.from = config.mailgunSender
   email.to = recipients.join(',')
 
