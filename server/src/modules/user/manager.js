@@ -4,7 +4,9 @@ import { UserInputError } from 'apollo-server'
 import User from './model'
 
 const createUser = async (args) => {
-  // TODO: validate args.email
+  // TODO: validate email is a email
+  // TODO: validate username is not a email
+  // TODO: validate email/username are uniq
   let userInDatabase = await User.findOne({ email: args.email }).exec()
 
   if (!userInDatabase) {
@@ -36,6 +38,14 @@ const createUser = async (args) => {
   return userInDatabase
 }
 
+const getUsers = async (args, user) => {
+  return User.find({})
+}
+
+const getUser = async (args, user) => {
+  return User.findById(args.id)
+}
+
 const updateUser = async (args, user) => {
   // TODO: allow admins to update users
   if (args.id !== user.id) {
@@ -58,11 +68,13 @@ const updateUser = async (args, user) => {
 }
 
 const deleteUser = async (args, user) => {
-
+  // TODO: Implement delete user
 }
 
 const publicProps = {
   createUser,
+  getUsers,
+  getUser,
   updateUser,
   deleteUser
 }

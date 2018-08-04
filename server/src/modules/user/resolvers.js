@@ -6,6 +6,8 @@ const subscriptionEvents = {
 
 export default {
   Query: {
+    getUsers: async (root, args, context, info) => manager.getUsers(args, context.user),
+    getUser: async (root, args, context, info) => manager.getUser(args, context.user)
   },
 
   Mutation: {
@@ -15,6 +17,7 @@ export default {
 
       return user
     },
+
     deleteUser: async (root, args, context, info) => manager.deleteUser(args, context.user)
   },
 
