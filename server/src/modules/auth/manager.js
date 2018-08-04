@@ -2,7 +2,7 @@ import config from '@config'
 import uuid from 'uuid/v4'
 import jwt from 'jsonwebtoken'
 import { pick } from 'lodash'
-import { AuthenticationError, UserInputError } from 'apollo-server'
+import { UserInputError } from 'apollo-server'
 
 import mailer from '@services/mailer'
 
@@ -71,11 +71,7 @@ const authenticateUser = async (username, password) => {
 }
 
 const refreshToken = async (user) => {
-  if (user) {
-    return generateJWT(user)
-  } else {
-    throw new AuthenticationError('Token invalid please authenticate.')
-  }
+  return generateJWT(user)
 }
 
 const registerUser = async (args) => {
@@ -88,19 +84,13 @@ const registerUser = async (args) => {
 }
 
 const inviteUser = async (args, user) => {
-  // TODO: We need to clean up all these if user is set checks as we are going to need to do
-  // this alot. This should probably be a directive on routes that need to be authenticated
-  if (user) {
-    args.password = uuid()
-    const invitedUser = await userManager.createUser(args)
+  args.password = uuid()
+  const invitedUser = await userManager.createUser(args)
 
-    invitedUser.verifyEmailToken = await generateJWT(invitedUser)
-    mailer.sendEmail(mailer.emailEnum.invite, [invitedUser.email], { invitedUser, invitee: user })
-  } else {
-    throw new AuthenticationError('Token invalid please authenticate.')
-  }
+  invitedUser.verifyEmailToken = await generateJWT(invitedUser)
+  mailer.sendEmail(mailer.emailEnum.invite, [invitedUser.email], { invitedUser, invitee: user })
 
-  return `We have invited ${inviteUser.email}.`
+  return `Success`
 }
 
 const forgotPassword = async (email) => {
@@ -121,15 +111,13 @@ const forgotPassword = async (email) => {
 }
 
 const verifyEmail = async (user) => {
-  if (user) {
-    user.confirmed = true
-    user.save()
-  } else {
-    throw new AuthenticationError('Token invalid please signup again.')
-  }
+  user.confirmed = true
+  user.save()
 
-  return 'Email confirmed'
+  return 'Success'
 }
+
+// TODO: Add changePassword
 // End public functions
 
 const publicProps = {

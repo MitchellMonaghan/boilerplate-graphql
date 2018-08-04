@@ -5,6 +5,7 @@ const schemas = loadModules('./src/modules', 'schema')
 const types = []
 const queries = []
 const mutations = []
+const subscriptions = []
 
 Object.keys(schemas).forEach((schemaKey) => {
   const schema = schemas[schemaKey]
@@ -12,6 +13,7 @@ Object.keys(schemas).forEach((schemaKey) => {
   types.push(schema.types)
   queries.push(schema.queries)
   mutations.push(schema.mutations)
+  subscriptions.push(schema.subscriptions)
 })
 
 export default `
@@ -23,5 +25,9 @@ export default `
 
   type Mutation {
     ${mutations.join('\n')}
+  }
+
+  type Subscription {
+    ${subscriptions.join('\n')}
   }
 `

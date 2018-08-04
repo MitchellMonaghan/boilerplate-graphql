@@ -14,8 +14,12 @@ const loadModules = (folderPath, fileName) => {
   const modules = {}
 
   moduleNames.forEach((moduleName) => {
-    const modulePath = path.join(process.cwd(), folderPath, moduleName, fileName)
-    modules[trimExtension(moduleName)] = require(modulePath)
+    try {
+      const modulePath = path.join(process.cwd(), folderPath, moduleName, fileName)
+      modules[trimExtension(moduleName)] = require(modulePath)
+    } catch (error) {
+      console.log(error)
+    }
   })
 
   return modules

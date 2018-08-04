@@ -14,8 +14,10 @@ export const types = gql`
 export const queries = gql``
 
 export const mutations = gql`
-  updateUser(firstName: String, lastName: String, email: String!, password: String!): User
-  deleteUser(firstName: String, lastName: String, email: String!, password: String!): User
+  updateUser(id: ID!, firstName: String, lastName: String, username: String!, password: String): User @isAuthenticated
+  deleteUser(firstName: String, lastName: String, email: String!, password: String!): User @isAuthenticated
 `
 
-export const subscriptions = gql``
+export const subscriptions = gql`
+  userUpdated: User
+`

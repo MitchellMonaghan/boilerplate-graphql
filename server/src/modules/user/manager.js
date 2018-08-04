@@ -36,8 +36,35 @@ const createUser = async (args) => {
   return userInDatabase
 }
 
+const updateUser = async (args, user) => {
+  // TODO: allow admins to update users
+  if (args.id !== user.id) {
+    throw new UserInputError('You can only modify your own account.', {
+      invalidArgs: [
+        'id'
+      ]
+    })
+  }
+
+  const { firstName, lastName, username } = args
+  // TODO: if changing user name ensure username doesn't already exist
+  let updatedUser = User.findByIdAndUpdate(args.id, {
+    firstName,
+    lastName,
+    username
+  }, { new: true })
+
+  return updatedUser
+}
+
+const deleteUser = async (args, user) => {
+
+}
+
 const publicProps = {
-  createUser
+  createUser,
+  updateUser,
+  deleteUser
 }
 
 module.exports = publicProps

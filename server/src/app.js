@@ -1,12 +1,16 @@
 import config from '@config'
 import mongoose from 'mongoose'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server'
+import { get } from 'lodash'
+
+import pubSub from '@services/pubSub'
 
 import { getUserFromToken, verifyEmail } from '@modules/auth/manager'
 
 import typeDefs from './graphql/typeDefs'
 import resolvers from './graphql/resolvers'
-const schema = makeExecutableSchema({ typeDefs, resolvers })
+import schemaDirectives from './graphql/schemaDirectives'
+const schema = makeExecutableSchema({ typeDefs, resolvers, schemaDirectives })
 
 // Connect to database
 mongoose.connect(config.mongoURI, { useNewUrlParser: true })
@@ -16,26 +20,32 @@ mongoose.connection.once('open', () => {
 
 const server = new ApolloServer({
   schema,
-  context: async (req) => {
-    const request = req.req
+  context: async ({ req, connection }) => {
     let user
+    let token
+    let accessingVerifyEmail = false
 
-    if (request && request.headers.authorization) {
-      user = await getUserFromToken(request.headers.authorization)
+    if (get(req, 'headers.authorization')) {
+      token = req.headers.authorization
+      accessingVerifyEmail = req.body.query.includes(verifyEmail.name)
+    } else if (get(connection, 'context.authorization')) {
+      token = connection.context.authorization
+    }
+
+    if (token) {
+      user = await getUserFromToken(token)
 
       // Only do this check if a real user token was provided
       if (user) {
         // If the user is not confirmed they are only allowed to
         // access the verifyEmail query as authenticated
-        const accessingVerifyEmail = request.body.query.includes(verifyEmail.name)
         user = user.confirmed || (!user.confirmed && accessingVerifyEmail) ? user : null
       }
-    } else {
-      // TODO: Figure out how to authenticate websocket connections
     }
 
     return {
-      user
+      user,
+      pubSub
     }
   }
 })
