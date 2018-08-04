@@ -3,11 +3,20 @@ const gql = String.raw
 
 export const types = gql`
   type User {
-    id: ID!
-    username: String!
+    id: ID
+    username: String
     firstName: String @isOwner
     lastName: String @isOwner
     email: String @isOwner
+  }
+
+  input UserInput {
+    id: ID!,
+    username: String
+    firstName: String
+    lastName: String
+    email: String
+    password: String
   }
 `
 
@@ -17,8 +26,8 @@ export const queries = gql`
 `
 
 export const mutations = gql`
-  updateUser(id: ID!, firstName: String, lastName: String, username: String!, password: String): User @isAuthenticated
-  deleteUser(firstName: String, lastName: String, email: String!, password: String!): User @isAuthenticated
+  updateUser(user: UserInput): User @isAuthenticated @isOwner
+  deleteUser(user: UserInput): User @isAuthenticated @isOwner
 `
 
 export const subscriptions = gql`

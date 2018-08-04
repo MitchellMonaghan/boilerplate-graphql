@@ -1,6 +1,11 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools'
 import { AuthenticationError, UserInputError } from 'apollo-server'
 
+import user from '@modules/user/model'
+const models = {
+  user
+}
+
 class isAuthenticated extends SchemaDirectiveVisitor {
   visitFieldDefinition (field, details) {
     this.isAuthenticated(field)
@@ -54,25 +59,47 @@ class isOwner extends SchemaDirectiveVisitor {
 
   isOwner (field) {
     // TODO: Allow admins to by pass is owner check
-    // TODO: I assume I need to call this resolve if the field is another object
     const { resolve } = field
 
     field.resolve = async function (...args) {
-      const [parent, , context, field] = args
-      let createdBy = parent.createdBy
+      const [parent, resolverArgs, context, field] = args
+      let entity
+      let createdBy
+      let entityType
 
-      if (field.parentType.name === 'User') {
-        createdBy = parent.id
+      if (parent) {
+        entityType = field.parentType.name.toLowerCase()
+        entity = parent
+      } else {
+        // if the directive is put on a query or mutation
+        // determine the entity type by the input
+        entityType = Object.keys(resolverArgs)[0]
+        entity = await models[entityType].findById(resolverArgs[entityType].id)
+      }
+
+      createdBy = entity.createdBy
+
+      if (entityType === 'user') {
+        createdBy = entity.id
       }
 
       if (createdBy === context.user.id) {
         return resolve ? resolve.apply(this, args) : parent[field.fieldName]
       }
 
-      if (field.parentType._isOwnerFieldsWrapped) {
-        throw new UserInputError(`You are not the owner of that ${field.parentType.name}`)
+      if (field.parentType._hasAlreadyErrored) {
+        return
+      }
+
+      if (field.parentType._isOwnerFieldsWrapped || !parent) {
+        field.parentType._hasAlreadyErrored = true
+        throw new UserInputError(`You are not the owner of that ${entityType}`, {
+          invalidArgs: [
+            'id'
+          ]
+        })
       } else {
-        throw new UserInputError(`You do not have permission to access ${field.fieldName} on ${field.parentType.name}`, {
+        throw new UserInputError(`You do not have permission to access ${field.fieldName} on ${entityType}`, {
           invalidArgs: [
             field.fieldName
           ]

@@ -47,21 +47,12 @@ const getUser = async (args, user) => {
 }
 
 const updateUser = async (args, user) => {
-  // TODO: allow admins to update users
-  if (args.id !== user.id) {
-    throw new UserInputError('You can only modify your own account.', {
-      invalidArgs: [
-        'id'
-      ]
-    })
-  }
-
-  const { firstName, lastName, username } = args
+  const { id, firstName, lastName } = args.user
   // TODO: if changing user name ensure username doesn't already exist
-  let updatedUser = User.findByIdAndUpdate(args.id, {
+  // username
+  let updatedUser = User.findByIdAndUpdate(id, {
     firstName,
-    lastName,
-    username
+    lastName
   }, { new: true })
 
   return updatedUser
