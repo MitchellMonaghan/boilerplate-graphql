@@ -19,5 +19,5 @@ export const mutations = gql`
 `
 
 export const subscriptions = gql`
-  userUpdated: User
+  userUpdated: User @isAuthenticated
 `

@@ -11,15 +11,28 @@ class isAuthenticated extends SchemaDirectiveVisitor {
   }
 
   isAuthenticated (field) {
-    const { resolve } = field
-    field.resolve = async (...args) => {
-      const [, , context] = args
+    if (field.resolve) {
+      const { resolve } = field
+      field.resolve = async (...args) => {
+        const [, , context] = args
 
-      if (context.user) {
-        return resolve.apply(this, args)
+        if (context.user) {
+          return resolve.apply(this, args)
+        }
+
+        throw new AuthenticationError('Token invalid please authenticate.')
       }
+    } else if (field.subscribe) {
+      const { subscribe } = field
+      field.subscribe = async (...args) => {
+        const [, , context] = args
 
-      throw new AuthenticationError('Token invalid please authenticate.')
+        if (context.user) {
+          return subscribe.apply(this, args)
+        }
+
+        throw new AuthenticationError('Token invalid please authenticate.')
+      }
     }
   }
 }

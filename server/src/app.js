@@ -10,7 +10,27 @@ import { getUserFromToken, verifyEmail } from '@modules/auth/manager'
 import typeDefs from './graphql/typeDefs'
 import resolvers from './graphql/resolvers'
 import schemaDirectives from './graphql/schemaDirectives'
-const schema = makeExecutableSchema({ typeDefs, resolvers, schemaDirectives })
+
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+  schemaDirectives,
+  subscriptions: {
+    onConnect: async (connectionParams, webSocket, context) => {
+      if (connectionParams.authToken) {
+        let user = await getUserFromToken(connectionParams.authToken)
+        user = get(user, 'confirmed') ? user : null
+        context.user = user
+      }
+
+      return context
+    },
+
+    onDisconnect: async (webSocket, context) => {
+      // ...
+    }
+  }
+})
 
 // Connect to database
 mongoose.connect(config.mongoURI, { useNewUrlParser: true })
@@ -22,18 +42,18 @@ const server = new ApolloServer({
   schema,
   context: async ({ req, connection }) => {
     let user
-    let token
+    let authToken
     let accessingVerifyEmail = false
 
     if (get(req, 'headers.authorization')) {
-      token = req.headers.authorization
+      authToken = req.headers.authorization
       accessingVerifyEmail = req.body.query.includes(verifyEmail.name)
     } else if (get(connection, 'context.authorization')) {
-      token = connection.context.authorization
+      authToken = connection.context.authorization
     }
 
-    if (token) {
-      user = await getUserFromToken(token)
+    if (authToken) {
+      user = await getUserFromToken(authToken)
 
       // Only do this check if a real user token was provided
       if (user) {
