@@ -49,17 +49,18 @@ const getUser = async (args, user) => {
 const updateUser = async (args, user) => {
   const { id, firstName, lastName } = args.user
   // TODO: if changing user name ensure username doesn't already exist
+  // TODO: You cannot update a user with a greater update permission than you
   // username
   let updatedUser = User.findByIdAndUpdate(id, {
     firstName,
     lastName
-  }, { new: true })
+  }, { new: true }).exec()
 
   return updatedUser
 }
 
 const deleteUser = async (args, user) => {
-  return User.delete({ _id: args.user.id }, user.id).exec()
+  return User.delete({ _id: args.id }, user.id).exec()
 }
 
 const publicProps = {

@@ -9,25 +9,16 @@ export const types = gql`
     lastName: String @hasPermission(permission: "update:user", value: "owner")
     email: String @hasPermission(permission: "update:user", value: "owner")
   }
-
-  input UserInput {
-    id: ID!,
-    username: String
-    firstName: String
-    lastName: String
-    email: String
-    password: String
-  }
 `
 
 export const queries = gql`
-  getUsers: [User] @isAuthenticated @hasPermission(permission: "read:user", value: "all")
-  getUser(id: ID!): User @isAuthenticated @hasPermission(permission: "read:user", value: "owner")
+  getUsers: [User] @hasPermission(permission: "read:user", value: "all") @isAuthenticated
+  getUser(id: ID!): User @hasPermission(permission: "read:user", value: "owner") @isAuthenticated
 `
 
 export const mutations = gql`
-  updateUser(user: UserInput): User @isAuthenticated @hasPermission(permission: "update:user", value: "owner")
-  deleteUser(user: UserInput): User @isAuthenticated @hasPermission(permission: "update:user", value: "owner")
+  updateUser(id: ID!, username: String!, firstName: String, lastName: String): User @hasPermission(permission: "update:user", value: "owner") @isAuthenticated
+  deleteUser(id: ID!): User @hasPermission(permission: "update:user", value: "owner") @isAuthenticated
 `
 
 export const subscriptions = gql`

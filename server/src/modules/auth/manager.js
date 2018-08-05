@@ -124,7 +124,13 @@ const verifyEmail = async (user) => {
   return 'Success'
 }
 
-// TODO: Add changePassword
+const changePassword = async (args, user) => {
+  let updatedUser = User.findByIdAndUpdate(args.id, {
+    password: args.password
+  }, { new: true }).exec()
+
+  return generateJWT(updatedUser)
+}
 // End public functions
 
 const publicProps = {
@@ -136,7 +142,8 @@ const publicProps = {
   registerUser,
   inviteUser,
   forgotPassword,
-  verifyEmail
+  verifyEmail,
+  changePassword
 }
 
 module.exports = publicProps

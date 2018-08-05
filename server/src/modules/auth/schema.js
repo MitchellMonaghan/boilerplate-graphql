@@ -10,9 +10,9 @@ export const queries = gql`
 `
 
 export const mutations = gql`
-  inviteUser(email: String!): String! @isAuthenticated
+  inviteUser(email: String!): String! @hasPermission(permission: "create:user", value: "all") @isAuthenticated
+  changePassword(id: ID!, password: String): String! @hasPermission(permission: "update:user", value: "owner") @isAuthenticated 
   verifyEmail: String! @isAuthenticated
-
   registerUser(firstName: String, lastName: String, username: String, email: String!, password: String!): String!
 `
 
