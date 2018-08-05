@@ -1,42 +1,11 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools'
-import { AuthenticationError, UserInputError, ApolloError } from 'apollo-server'
-
+import { UserInputError, ApolloError } from 'apollo-server'
 import { permissionsEnum } from '@modules/auth/manager'
+
 import user from '@modules/user/model'
+
 const models = {
   user
-}
-
-class isAuthenticated extends SchemaDirectiveVisitor {
-  visitFieldDefinition (field, details) {
-    this.isAuthenticated(field)
-  }
-
-  isAuthenticated (field) {
-    if (field.resolve) {
-      const { resolve } = field
-      field.resolve = async (...args) => {
-        const [, , context] = args
-
-        if (context.user) {
-          return resolve.apply(this, args)
-        }
-
-        throw new AuthenticationError('Token invalid please authenticate.')
-      }
-    } else if (field.subscribe) {
-      const { subscribe } = field
-      field.subscribe = async (...args) => {
-        const [, , context] = args
-
-        if (context.user) {
-          return subscribe.apply(this, args)
-        }
-
-        throw new AuthenticationError('Token invalid please authenticate.')
-      }
-    }
-  }
 }
 
 class hasPermission extends SchemaDirectiveVisitor {
@@ -116,10 +85,5 @@ class hasPermission extends SchemaDirectiveVisitor {
   }
 }
 
-const publicProps = {
-  isAuthenticated,
-  hasPermission
-}
-
-module.exports = publicProps
-export default publicProps
+module.exports = hasPermission
+export default hasPermission

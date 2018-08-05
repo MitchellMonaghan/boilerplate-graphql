@@ -12,7 +12,10 @@ export const types = gql`
 `
 
 export const queries = gql`
+  "Gets all users from the system"
   getUsers: [User] @hasPermission(permission: "read:user", value: "all") @isAuthenticated
+
+  "Gets a single user specified by the id provided"
   getUser(id: ID!): User @hasPermission(permission: "read:user", value: "owner") @isAuthenticated
 `
 
