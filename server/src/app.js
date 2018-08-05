@@ -14,22 +14,7 @@ import schemaDirectives from './graphql/schemaDirectives'
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers,
-  schemaDirectives,
-  subscriptions: {
-    onConnect: async (connectionParams, webSocket, context) => {
-      if (connectionParams.authToken) {
-        let user = await getUserFromToken(connectionParams.authToken)
-        user = get(user, 'confirmed') ? user : null
-        context.user = user
-      }
-
-      return context
-    },
-
-    onDisconnect: async (webSocket, context) => {
-      // ...
-    }
-  }
+  schemaDirectives
 })
 
 // Connect to database
@@ -67,10 +52,27 @@ const server = new ApolloServer({
       user,
       pubSub
     }
+  },
+  subscriptions: {
+    onConnect: async (connectionParams, webSocket, context) => {
+      if (connectionParams.authToken) {
+        let user = await getUserFromToken(connectionParams.authToken)
+        user = get(user, 'confirmed') ? user : null
+        context.user = user
+      }
+
+      return context
+    },
+
+    onDisconnect: async (webSocket, context) => {
+      // ...
+    }
+  },
+  engine: {
+    apiKey: config.apolloEngineAPIKey
   }
 })
 
-// TODO: Add logging winston/morgan
 server.listen({ port: config.port }).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`)
 })

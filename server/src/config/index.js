@@ -12,6 +12,8 @@ export default {
   authSecret: process.env.AUTH_SECRET,
   tokenExipresIn: process.env.TOKEN_EXPIRES_IN || '3d',
 
+  apolloEngineAPIKey: process.env.APOLLO_ENGINE_API_KEY,
+
   redisDomainName: process.env.REDIS_DOMAIN_NAME,
   redisPortNumber: process.env.REDIS_PORT_NUMBER,
   redisPassword: process.env.REDIS_PASSWORD,

@@ -5,6 +5,7 @@
   "main": "./src/app.js",
   "scripts": {
     "start": "npm run lint && node --nolazy --require @babel/register --require @babel/polyfill --inspect-brk=9229 ./src/app.js",
+    "dev": "node --require @babel/register --require @babel/polyfill ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src"
   },
@@ -34,6 +35,7 @@
     "@babel/polyfill": "^7.0.0-beta.54",
     "@babel/preset-env": "^7.0.0-beta.54",
     "@babel/register": "^7.0.0-beta.54",
+    "apollo": "^1.6.0",
     "babel-plugin-module-resolver": "^3.1.1",
     "eslint": "^5.2.0",
     "eslint-config-standard": "^12.0.0-alpha.0",
