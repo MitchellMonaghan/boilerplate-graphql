@@ -9,8 +9,8 @@ export default {
   },
 
   Mutation: {
-    inviteUser: async (root, args, context, info) => manager.inviteUser(args, context.user),
-    changePassword: async (root, args, context, info) => manager.changePassword(args, context.user),
+    inviteUser: async (root, args, context, info) => manager.inviteUser(args.email, context.user),
+    changePassword: async (root, args, context, info) => manager.changePassword(args.id, args.password, context.user),
     verifyEmail: async (root, args, context, info) => manager.verifyEmail(context.user),
     registerUser: async (root, args, context, info) => manager.registerUser(args)
   }

@@ -87,7 +87,7 @@ class hasPermission extends SchemaDirectiveVisitor {
       // if the directive is put on a query or mutation
       // determine the entity type by the input
       entityType = this.args.permission.split(':')[1]
-      entity = await models[entityType].findById(resolverArgs[entityType].id)
+      entity = await models[entityType].findById(resolverArgs.id)
     }
 
     createdBy = entity.createdBy

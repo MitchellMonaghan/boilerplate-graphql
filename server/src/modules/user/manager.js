@@ -1,12 +1,11 @@
 
 import { UserInputError } from 'apollo-server'
 
+import Joi from '@services/joi'
+
 import User from './model'
 
 const createUser = async (args) => {
-  // TODO: validate email is a email
-  // TODO: validate username is not a email
-  // TODO: validate email/username are uniq
   let userInDatabase = await User.findOne({ email: args.email }).exec()
 
   if (!userInDatabase) {
@@ -16,6 +15,16 @@ const createUser = async (args) => {
     user.email = user.email.toLowerCase().trim()
 
     if (user.username) {
+      const userNameExists = await User.findOne({ username: user.username }).exec()
+
+      if (userNameExists) {
+        throw new UserInputError('Username has already been taken', {
+          invalidArgs: [
+            'username'
+          ]
+        })
+      }
+
       user.username = user.username.trim()
     } else {
       user.username = user.email
@@ -42,25 +51,68 @@ const getUsers = async (args, user) => {
   return User.find({})
 }
 
-const getUser = async (args, user) => {
-  return User.findById(args.id)
+const getUser = async (id, user) => {
+  const validationSchema = {
+    id: Joi.string().required()
+  }
+
+  Joi.validate({ id }, validationSchema)
+
+  return User.findById(id)
 }
 
 const updateUser = async (args, user) => {
-  const { id, firstName, lastName } = args.user
-  // TODO: if changing user name ensure username doesn't already exist
-  // TODO: You cannot update a user with a greater update permission than you
-  // username
-  let updatedUser = User.findByIdAndUpdate(id, {
-    firstName,
-    lastName
-  }, { new: true }).exec()
+  const validationSchema = {
+    id: Joi.string().required(),
+    username: Joi.string().required(),
+    firstName: Joi.string(),
+    lastName: Joi.string()
+  }
+
+  Joi.validate(args, validationSchema)
+
+  const { id, username } = args
+  delete args.id
+
+  const userNameExists = await User.findOne({ username }).exec()
+
+  if (userNameExists && user.id !== userNameExists.id) {
+    throw new UserInputError('Username has already been taken', {
+      invalidArgs: [
+        'username'
+      ]
+    })
+  }
+
+  const userToBeUpdated = await User.findById(id).exec()
+
+  if (userToBeUpdated.username === username) {
+    delete args.username
+  } else {
+    Joi.validate(args.username, Joi.string().alphanum())
+  }
+
+  if (userToBeUpdated.permissions['update:user'] > user.permissions['update:user']) {
+    throw new UserInputError('You can not update a user who has a higher level permission than you.', {
+      invalidArgs: [
+        'id'
+      ]
+    })
+  }
+
+  let updatedUser = User.findByIdAndUpdate(id, args, { new: true }).exec()
 
   return updatedUser
 }
 
-const deleteUser = async (args, user) => {
-  return User.delete({ _id: args.id }, user.id).exec()
+const deleteUser = async (id, user) => {
+  const validationSchema = {
+    id: Joi.string().required()
+  }
+
+  Joi.validate({ id }, validationSchema)
+
+  return User.delete({ _id: id }, user.id).exec()
 }
 
 const publicProps = {

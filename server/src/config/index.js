@@ -21,5 +21,7 @@ export default {
   mailgunSender: process.env.MAILGUN_SENDER,
 
   companyName: process.env.COMPANY_NAME,
-  productName: process.env.PRODUCT_NAME
+  productName: process.env.PRODUCT_NAME,
+
+  passwordRegex: new RegExp(process.env.PASSWORD_REGEX, 'i') || /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
 }

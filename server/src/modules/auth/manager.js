@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import { pick } from 'lodash'
 import { UserInputError } from 'apollo-server'
 
+import Joi from '@services/joi'
 import mailer from '@services/mailer'
 
 import User from '@modules/user/model'
@@ -44,6 +45,13 @@ const getUserFromToken = async (token) => {
 }
 
 const authenticateUser = async (username, password) => {
+  const validationSchema = {
+    username: Joi.string().required(),
+    password: Joi.string().required()
+  }
+
+  Joi.validate({ username, password }, validationSchema)
+
   username = username.toLowerCase().trim()
 
   // Searching on username case insensitive
@@ -82,6 +90,14 @@ const refreshToken = async (user) => {
 }
 
 const registerUser = async (args) => {
+  const validationSchema = {
+    email: Joi.string().email({ minDomainAtoms: 2 }).required(),
+    username: Joi.string().alphanum(),
+    password: Joi.string().regex(config.passwordRegex).required()
+  }
+
+  Joi.validate(args, validationSchema)
+
   const user = await userManager.createUser(args)
 
   user.verifyEmailToken = await generateJWT(user)
@@ -90,9 +106,14 @@ const registerUser = async (args) => {
   return 'User created, we will email you to verify your email.'
 }
 
-const inviteUser = async (args, user) => {
-  args.password = uuid()
-  const invitedUser = await userManager.createUser(args)
+const inviteUser = async (email, user) => {
+  const validationSchema = {
+    email: Joi.string().email({ minDomainAtoms: 2 }).required()
+  }
+
+  Joi.validate({ email }, validationSchema)
+
+  const invitedUser = await userManager.createUser({ email, password: uuid() })
 
   invitedUser.verifyEmailToken = await generateJWT(invitedUser)
   mailer.sendEmail(mailer.emailEnum.invite, [invitedUser.email], { invitedUser, invitee: user })
@@ -101,6 +122,12 @@ const inviteUser = async (args, user) => {
 }
 
 const forgotPassword = async (email) => {
+  const validationSchema = {
+    email: Joi.string().email({ minDomainAtoms: 2 }).required()
+  }
+
+  Joi.validate({ email }, validationSchema)
+
   const user = await User.findOne({ email }).exec()
 
   if (!user || (user && !user.confirmed)) {
@@ -124,9 +151,16 @@ const verifyEmail = async (user) => {
   return 'Success'
 }
 
-const changePassword = async (args, user) => {
-  let updatedUser = User.findByIdAndUpdate(args.id, {
-    password: args.password
+const changePassword = async (id, password, user) => {
+  const validationSchema = {
+    id: Joi.string().required(),
+    password: Joi.string().regex(config.passwordRegex).required()
+  }
+
+  Joi.validate({ id, password }, validationSchema)
+
+  let updatedUser = User.findByIdAndUpdate(id, {
+    password
   }, { new: true }).exec()
 
   return generateJWT(updatedUser)
