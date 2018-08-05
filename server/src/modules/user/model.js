@@ -21,12 +21,21 @@ export const attributes = {
     required: true,
     bcrypt: true
   },
-  confirmed: { type: Boolean, default: false }
+  confirmed: { type: Boolean, default: false },
+  permissions: {
+    // User permissions, please see auth manager permissions enum for valid values
+    // For protected fields please use the update permission
+    'create:user': { type: Number, default: 2 },
+    'read:user': { type: Number, default: 2 },
+    'update:user': { type: Number, default: 1 }
+
+    // Other module permissions here as needed
+  }
 }
 
 const UserSchema = new mongoose.Schema(attributes, { minimize: false })
 UserSchema.plugin(mongooseBcrypt, { rounds: 12 })
-UserSchema.plugin(mongooseDelete)
+UserSchema.plugin(mongooseDelete, { deletedBy: true })
 UserSchema.plugin(mongooseTimestamps)
 
 export default mongoose.model('User', UserSchema)

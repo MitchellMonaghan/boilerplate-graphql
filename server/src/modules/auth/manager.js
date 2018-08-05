@@ -14,6 +14,13 @@ import userManager from '@modules/user/manager'
 // End private functions
 
 // Public functions
+const permissionsEnum = {
+  none: 0, // no access
+  owner: 1, // access owner only
+  all: 2, // access all of a collection
+  super: 3 // super user who cannot be tampered with
+}
+
 const generateJWT = async (user) => {
   const props = Object.assign({}, {
     user: pick(user, ['id'])
@@ -121,6 +128,7 @@ const verifyEmail = async (user) => {
 // End public functions
 
 const publicProps = {
+  permissionsEnum,
   generateJWT,
   getUserFromToken,
   authenticateUser,

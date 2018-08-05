@@ -59,7 +59,7 @@ const updateUser = async (args, user) => {
 }
 
 const deleteUser = async (args, user) => {
-  // TODO: Implement delete user
+  return User.delete({ _id: args.user.id }, user.id).exec()
 }
 
 const publicProps = {
