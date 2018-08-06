@@ -72,7 +72,7 @@ class hasPermission extends SchemaDirectiveVisitor {
     if (isRootObject) {
       // if the directive is put on a query or mutation
       // determine the entity type by the input
-      entityType = this.args.permission.split(':')[1]
+      entityType = this.args.permission.split('_')[1]
       entity = parentTypeName === rootObjects.subscription ? parent : await models[entityType].findById(resolverArgs.id)
     } else {
       entityType = field.parentType.name.toLowerCase()

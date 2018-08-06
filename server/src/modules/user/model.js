@@ -25,9 +25,9 @@ export const attributes = {
   permissions: {
     // User permissions, please see auth manager permissions enum for valid values
     // For protected fields please use the update permission
-    'create:user': { type: Number, default: 2 },
-    'read:user': { type: Number, default: 2 },
-    'update:user': { type: Number, default: 1 }
+    create_user: { type: Number, default: 2 },
+    read_user: { type: Number, default: 2 },
+    update_user: { type: Number, default: 1 }
 
     // Other module permissions here as needed
   }

@@ -92,7 +92,7 @@ const updateUser = async (args, user) => {
     Joi.validate(args.username, Joi.string().alphanum())
   }
 
-  if (userToBeUpdated.permissions['update:user'] > user.permissions['update:user']) {
+  if (userToBeUpdated.permissions['update_user'] > user.permissions['update_user']) {
     throw new UserInputError('You can not update a user who has a higher level permission than you.', {
       invalidArgs: [
         'id'
