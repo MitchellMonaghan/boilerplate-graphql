@@ -13,7 +13,7 @@ export default {
   Mutation: {
     updateUser: async (root, args, context, info) => {
       const user = await manager.updateUser(args, context.user)
-      context.pubSub.publish(subscriptionEvents.USER_UPDATED, { userUpdated: user })
+      context.pubSub.publish(subscriptionEvents.USER_UPDATED, { userUpdated: user.toObject({ virtuals: true }) })
 
       return user
     },

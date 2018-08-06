@@ -48,7 +48,7 @@ const createUser = async (args) => {
 }
 
 const getUsers = async (args, user) => {
-  return User.find({})
+  return User.find({}).exec()
 }
 
 const getUser = async (id, user) => {
@@ -58,7 +58,7 @@ const getUser = async (id, user) => {
 
   Joi.validate({ id }, validationSchema)
 
-  return User.findById(id)
+  return User.findById(id).exec()
 }
 
 const updateUser = async (args, user) => {
@@ -100,7 +100,7 @@ const updateUser = async (args, user) => {
     })
   }
 
-  let updatedUser = User.findByIdAndUpdate(id, args, { new: true }).exec()
+  let updatedUser = await User.findByIdAndUpdate(id, args, { new: true }).exec()
 
   return updatedUser
 }

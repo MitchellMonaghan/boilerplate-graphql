@@ -19,37 +19,34 @@ const schema = makeExecutableSchema({
 const graphqlServer = new ApolloServer({
   schema,
   context: async ({ req, connection }) => {
-    let user
-    let authToken
-    let accessingVerifyEmail = false
+    let context = {}
 
     if (get(req, 'headers.authorization')) {
-      authToken = req.headers.authorization
-      accessingVerifyEmail = req.body.query.includes(verifyEmail.name)
-    } else if (get(connection, 'context.authorization')) {
-      authToken = connection.context.authorization
-    }
+      let authToken = req.headers.authorization
 
-    if (authToken) {
-      user = await getUserFromToken(authToken)
+      if (authToken) {
+        context.user = await getUserFromToken(authToken)
 
-      // Only do this check if a real user token was provided
-      if (user) {
-        // If the user is not confirmed they are only allowed to
-        // access the verifyEmail query as authenticated
-        user = user.confirmed || (!user.confirmed && accessingVerifyEmail) ? user : null
+        // Only do this check if a real user token was provided
+        if (context.user) {
+          // If the user is not confirmed they are only allowed to
+          // access the verifyEmail query as authenticated
+          let accessingVerifyEmail = req.body.query.includes(verifyEmail.name)
+          context.user = context.user.confirmed || (!context.user.confirmed && accessingVerifyEmail) ? context.user : null
+        }
       }
+    } else if (connection) {
+      context = connection.context
     }
 
-    return {
-      user,
-      pubSub
-    }
+    context.pubSub = pubSub
+
+    return context
   },
   subscriptions: {
     onConnect: async (connectionParams, webSocket, context) => {
-      if (connectionParams.authToken) {
-        let user = await getUserFromToken(connectionParams.authToken)
+      if (connectionParams.authorization) {
+        let user = await getUserFromToken(connectionParams.authorization)
         user = get(user, 'confirmed') ? user : null
         context.user = user
       }

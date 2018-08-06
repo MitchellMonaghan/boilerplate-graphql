@@ -1,11 +1,17 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools'
-import { UserInputError, ApolloError } from 'apollo-server'
+import { AuthenticationError, UserInputError, ApolloError } from 'apollo-server'
 import { permissionsEnum } from '@modules/auth/manager'
 
 import user from '@modules/user/model'
 
 const models = {
   user
+}
+
+const rootObjects = {
+  query: 'Query',
+  mutation: 'Mutation',
+  subscription: 'Subscription'
 }
 
 class hasPermission extends SchemaDirectiveVisitor {
@@ -29,6 +35,11 @@ class hasPermission extends SchemaDirectiveVisitor {
 
     field.resolve = async (...args) => {
       const [parent, , context, field] = args
+
+      if (!context.user) {
+        throw new AuthenticationError('Token invalid please authenticate.')
+      }
+
       const userPermission = context.user.permissions[this.args.permission]
       const permissionRequired = permissionsEnum[this.args.value]
 
@@ -37,7 +48,14 @@ class hasPermission extends SchemaDirectiveVisitor {
       } else if (permissionRequired === permissionsEnum.owner && userPermission <= permissionsEnum.owner) {
         return this.isOwner(args, resolve)
       } else {
-        return resolve ? resolve.apply(this, args) : parent[field.fieldName]
+        const parentTypeName = field.parentType.name
+        const isRootObject = parentTypeName === rootObjects.query || parentTypeName === rootObjects.mutation || parentTypeName === rootObjects.subscription
+
+        if (isRootObject) {
+          return resolve ? resolve.apply(this, args) : parent
+        } else {
+          return parent[field.fieldName]
+        }
       }
     }
   }
@@ -48,15 +66,18 @@ class hasPermission extends SchemaDirectiveVisitor {
     let entity
     let createdBy
     let entityType
+    const parentTypeName = field.parentType.name
+    const isRootObject = parentTypeName === rootObjects.query || parentTypeName === rootObjects.mutation || parentTypeName === rootObjects.subscription
 
-    if (parent) {
-      entityType = field.parentType.name.toLowerCase()
-      entity = parent
-    } else {
+    if (isRootObject) {
       // if the directive is put on a query or mutation
       // determine the entity type by the input
       entityType = this.args.permission.split(':')[1]
-      entity = await models[entityType].findById(resolverArgs.id)
+      entity = parentTypeName === rootObjects.subscription ? parent : await models[entityType].findById(resolverArgs.id)
+    } else {
+      entityType = field.parentType.name.toLowerCase()
+
+      entity = parent
     }
 
     createdBy = entity.createdBy
@@ -66,10 +87,14 @@ class hasPermission extends SchemaDirectiveVisitor {
     }
 
     if (createdBy === context.user.id) {
-      return resolve ? resolve.apply(this, args) : parent[field.fieldName]
+      if (isRootObject) {
+        return resolve ? resolve.apply(this, args) : entity
+      } else {
+        return parent[field.fieldName]
+      }
     }
 
-    if (field.parentType._isOwnerFieldsWrapped || !parent) {
+    if (field.parentType._isOwnerFieldsWrapped || isRootObject) {
       throw new UserInputError(`You are not the owner of that ${entityType}`, {
         invalidArgs: [
           'id'

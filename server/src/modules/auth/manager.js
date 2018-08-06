@@ -35,7 +35,7 @@ const generateJWT = async (user) => {
 const getUserFromToken = async (token) => {
   try {
     const decoded = jwt.decode(token)
-    const user = await User.findById(decoded.user.id)
+    const user = await User.findById(decoded.user.id).exec()
 
     jwt.verify(token, `${config.authSecret}${user.password}`)
     return user
@@ -159,7 +159,7 @@ const changePassword = async (id, password, user) => {
 
   Joi.validate({ id, password }, validationSchema)
 
-  let updatedUser = User.findByIdAndUpdate(id, {
+  let updatedUser = await User.findByIdAndUpdate(id, {
     password
   }, { new: true }).exec()
 
