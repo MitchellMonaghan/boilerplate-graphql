@@ -2,6 +2,8 @@ const fieldPlaceHolder = '{field}'
 
 const errorMessages = {
   required: `${fieldPlaceHolder} is required.`,
+  notSameAsUsername: `${fieldPlaceHolder} cannot match Username.`,
+  notSameAsEmail: `${fieldPlaceHolder} cannot match Email.`,
   sameAsPassword: `Passwords must match.`,
   email: `Please enter a valid ${fieldPlaceHolder}.`,
   phoneNumber: `Please enter a valid phone number`,
@@ -23,7 +25,7 @@ var evaluateError = function (fieldName, validator) {
 
 export default (fieldProperty, propertyName, errorKey, serverErrors = []) => {
   // Check for server errors first
-  if (serverErrors.length > 0) {
+  if (serverErrors && serverErrors.length > 0) {
     for (let i = 0; i < serverErrors.length; i++) {
       const serverError = serverErrors[i]
       const errorMessageFound = serverError.extensions.exception.invalidArgs.includes(errorKey)

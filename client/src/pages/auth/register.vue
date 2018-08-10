@@ -34,6 +34,23 @@
           </q-field>
         <!-- End email -->
 
+        <!-- Confirm password -->
+          <q-field
+            class="row col-12 q-mt-md"
+            :label="$q.platform.is.mobile ? null : `${confirmPasswordLabel}:`"
+            :error="$v.form.confirmPassword.$error"
+            :error-label="confirmPasswordError"
+          >
+            <q-input
+              type="password"
+              v-model.trim="form.confirmPassword"
+              :float-label="confirmPasswordLabel"
+              @blur="$v.form.confirmPassword.$touch()"
+              @keyup.enter="onSubmit"
+            />
+          </q-field>
+        <!-- End confirm password -->
+
         <!-- Password -->
           <q-field
             class="row col-12 q-mt-md"
@@ -60,7 +77,7 @@
 </template>
 
 <script>
-import { required, alphaNum, email, hasServerError } from 'src/validators'
+import { required, alphaNum, email, not, sameAs, hasServerError } from 'src/validators'
 
 export default {
   data () {
@@ -71,13 +88,17 @@ export default {
       emailLabel: 'Email',
       emailFieldKey: 'email',
 
+      confirmPasswordLabel: 'Confirm password',
+      confirmPasswordFieldKey: 'confirmPassword',
+
       passwordLabel: 'Password',
       passwordFieldKey: 'password',
 
       form: {
         username: '',
-        password: '',
-        email: ''
+        email: '',
+        confirmPassword: '',
+        password: ''
       },
 
       serverErrors: []
@@ -91,6 +112,10 @@ export default {
 
     emailError () {
       return this.$displayError(this.$v.form.email, this.emailLabel, this.emailFieldKey, this.serverErrors)
+    },
+
+    confirmPasswordError () {
+      return this.$displayError(this.$v.form.confirmPassword, this.confirmPasswordLabel)
     },
 
     passwordError () {
@@ -126,7 +151,14 @@ export default {
       form: {
         username: { required, alphaNum, hasServerError: hasServerError(this.serverErrors, this.usernameFieldKey) },
         email: { required, email, hasServerError: hasServerError(this.serverErrors, this.emailFieldKey) },
-        password: { required, hasServerError: hasServerError(this.serverErrors, this.passwordFieldKey) }
+        confirmPassword: { required },
+        password: {
+          required,
+          notSameAsUsername: not(sameAs(this.usernameFieldKey)),
+          notSameAsEmail: not(sameAs(this.emailFieldKey)),
+          sameAsPassword: sameAs(this.confirmPasswordFieldKey),
+          hasServerError: hasServerError(this.serverErrors, this.passwordFieldKey)
+        }
       }
     }
   }
