@@ -4,12 +4,16 @@ import { UserInputError } from 'apollo-server'
 const validate = Joi.validate
 
 Joi.validate = (data, validationSchema) => {
-  const { error } = validate(data, validationSchema)
+  let { error } = validate(data, validationSchema)
 
   if (error) {
-    throw new UserInputError(error.details[0].message, {
+    error = error.details[0]
+    error.message = error.type === 'string.regex.name' && error.context.key === 'password'
+      ? 'Password does not meet complexity requirements' : error.message
+
+    throw new UserInputError(error.message, {
       invalidArgs: [
-        error.details[0].context.key
+        error.context.key
       ]
     })
   }
