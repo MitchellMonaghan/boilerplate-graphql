@@ -6,16 +6,19 @@ import Joi from '@services/joi'
 import User from './model'
 
 const createUser = async (args) => {
+  args.email = args.email.toLowerCase().trim()
   let userInDatabase = await User.findOne({ email: args.email }).exec()
 
   if (!userInDatabase) {
     // User doesn't exist, create a new user
     const user = new User(args)
     user.confirmed = false
-    user.email = user.email.toLowerCase().trim()
+    user.lastPasswordChange = new Date()
 
     if (user.username) {
-      const userNameExists = await User.findOne({ username: user.username }).exec()
+      const userNameExists = await User.findOne({
+        username: { $regex: new RegExp('^' + user.username.toLowerCase(), 'i') }
+      }).exec()
 
       if (userNameExists) {
         throw new UserInputError('Username has already been taken', {

@@ -21,6 +21,7 @@ export const attributes = {
     required: true,
     bcrypt: true
   },
+  lastPasswordChange: Date,
   confirmed: { type: Boolean, default: false },
   permissions: {
     // User permissions, please see auth manager permissions enum for valid values

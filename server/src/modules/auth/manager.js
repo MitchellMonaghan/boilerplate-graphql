@@ -2,7 +2,7 @@ import config from '@config'
 import uuid from 'uuid/v4'
 import jwt from 'jsonwebtoken'
 import { pick } from 'lodash'
-import { UserInputError } from 'apollo-server'
+import { AuthenticationError, UserInputError } from 'apollo-server'
 
 import Joi from '@services/joi'
 import mailer from '@services/mailer'
@@ -24,12 +24,12 @@ const permissionsEnum = {
 
 const generateJWT = async (user) => {
   const props = Object.assign({}, {
-    user: pick(user, ['id'])
+    user: pick(user, ['id', 'username', 'email', 'firstName', 'lastName', 'lastPasswordChange'])
   })
 
   // Sign token with a combination of authSecret and user password
   // This way both the server and the user has the ability to invalidate all tokens
-  return jwt.sign(props, `${config.authSecret}${user.password}`, { expiresIn: config.tokenExipresIn })
+  return jwt.sign(props, `${config.authSecret}`, { expiresIn: config.tokenExipresIn })
 }
 
 const getUserFromToken = async (token) => {
@@ -37,7 +37,12 @@ const getUserFromToken = async (token) => {
     const decoded = jwt.decode(token)
     const user = await User.findById(decoded.user.id).exec()
 
-    jwt.verify(token, `${config.authSecret}${user.password}`)
+    jwt.verify(token, `${config.authSecret}`)
+
+    if (decoded.lastPasswordChange !== user.lastPasswordChange) {
+      throw new AuthenticationError('Token invalid please authenticate.')
+    }
+
     return user
   } catch (error) {
     return null
@@ -160,7 +165,8 @@ const changePassword = async (id, password, user) => {
   Joi.validate({ id, password }, validationSchema)
 
   let updatedUser = await User.findByIdAndUpdate(id, {
-    password
+    password,
+    lastPasswordChange: new Date()
   }, { new: true }).exec()
 
   return generateJWT(updatedUser)
