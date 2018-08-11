@@ -6,10 +6,18 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { getMainDefinition } from 'apollo-utilities'
 
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import store from 'src/store'
+const vuexStore = store()
 
 export default ({ Vue }) => {
   const httpLink = new HttpLink({
-    uri: '/graphql'
+    uri: '/graphql',
+    fetch: (uri, options) => {
+      options.headers.authorization = vuexStore.state.auth.token
+
+      var initialRequest = fetch(uri, options)
+      return initialRequest
+    }
   })
 
   const wsLink = new WebSocketLink({

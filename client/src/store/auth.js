@@ -8,12 +8,17 @@ const state = extend({}, {
 })
 
 const mutations = extend({}, {
+  setUser (state, user) {
+    if (user) {
+      state.user = user
+    } else {
+      state.user = null
+    }
+  },
+
   setToken (state, token) {
     if (token) {
-      const decodedToken = jwt.decode(token)
-
       state.token = token
-      state.user = decodedToken.user
 
       Cookies.set('token', token, {
         expire: '', // TODO: Set expiration to match token
@@ -22,13 +27,45 @@ const mutations = extend({}, {
       })
     } else {
       state.token = null
-      state.user = null
       Cookies.remove('token')
     }
   }
 })
 
 const actions = extend({}, {
+  async getCurrentUser ({commit}) {
+    // Get token
+    const token = Cookies.get('token')
+
+    if (token) {
+      await commit('setToken', token)
+      const decodedToken = jwt.decode(token)
+
+      // Request user from server
+      const response = await this._vm.$apollo.query({
+        variables: decodedToken.user,
+        query: gql`
+          query($id: ID!) {
+            getUser(id: $id){
+              id
+              username
+              email
+              firstName
+              lastName
+              permissions{
+                create_user
+                read_user
+                update_user
+              }
+            }
+          }
+        `
+      })
+
+      commit('setUser', response.data.getUser)
+    }
+  },
+
   async register ({ commit }, form) {
     console.log(this._vm.$apollo)
     await this._vm.$apollo.mutate({

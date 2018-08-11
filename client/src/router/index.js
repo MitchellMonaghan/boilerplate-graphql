@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { Cookies } from 'quasar'
 
 // import globalAuthGuard from 'src/.core.vue/router'
 import routes from './routes'
@@ -18,14 +17,8 @@ const globalAuthGuard = async function (to, from, next) {
   let userIsAuthenticated = vuexStore.state.auth.user
 
   if (!userIsAuthenticated) {
-    // if not logged in check for cookie
-    const token = Cookies.get('token')
-
-    // if cookie exists authenticate
-    if (token) {
-      await vuexStore.commit('auth/setToken', token)
-      userIsAuthenticated = vuexStore.state.auth.user
-    }
+    await vuexStore.dispatch('auth/getCurrentUser')
+    userIsAuthenticated = vuexStore.state.auth.user
   }
 
   if (to.matched.some(record => record.meta.anonymousOnly)) {
