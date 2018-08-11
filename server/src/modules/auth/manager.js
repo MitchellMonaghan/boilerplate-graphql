@@ -36,10 +36,9 @@ const getUserFromToken = async (token) => {
   try {
     const decoded = jwt.decode(token)
     const user = await User.findById(decoded.user.id).exec()
-
     jwt.verify(token, `${config.authSecret}`)
 
-    if (decoded.lastPasswordChange !== user.lastPasswordChange) {
+    if (decoded.user.lastPasswordChange !== user.lastPasswordChange.toISOString()) {
       throw new AuthenticationError('Token invalid please authenticate.')
     }
 
