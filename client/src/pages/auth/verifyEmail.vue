@@ -32,12 +32,9 @@ export default {
   },
 
   async created () {
-    // Call server to verify email
     try {
       await this.$store.dispatch('auth/verify', this.$route.query.token)
       this.pageState = this.pageStates.validToken
-
-      // this.$router.push({ name: 'authenticatedLandingPage' })
     } catch (error) {
       this.pageState = this.pageStates.invalidToken
     }

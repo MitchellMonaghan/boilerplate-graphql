@@ -89,6 +89,17 @@ const actions = extend({}, {
     })
   },
 
+  async forgotPassword ({ commit }, form) {
+    await this._vm.$apollo.query({
+      variables: form,
+      query: gql`
+        query($email: String!) {
+          forgotPassword(email: $email)
+        }
+      `
+    })
+  },
+
   async login ({ commit }, form) {
     const response = await this._vm.$apollo.query({
       variables: form,
@@ -104,6 +115,18 @@ const actions = extend({}, {
 
   async logout ({ commit }) {
     commit('setToken')
+  },
+
+  async refreshToken ({ commit }) {
+    const response = await this._vm.$apollo.query({
+      query: gql`
+        query {
+          refreshToken
+        }
+      `
+    })
+
+    await commit('setToken', response.data.refreshToken)
   }
 })
 
