@@ -67,12 +67,23 @@ const actions = extend({}, {
   },
 
   async register ({ commit }, form) {
-    console.log(this._vm.$apollo)
     await this._vm.$apollo.mutate({
       variables: form,
       mutation: gql`
         mutation RegisterUser($username: String!, $email: String!, $password: String!) {
           registerUser(username: $username, email: $email, password: $password)
+        }
+      `
+    })
+  },
+
+  async verify ({ commit }, token) {
+    commit('setToken', token)
+
+    await this._vm.$apollo.mutate({
+      mutation: gql`
+        mutation verifyEmail {
+          verifyEmail
         }
       `
     })
