@@ -53,6 +53,10 @@
           <q-item-side icon="rss feed" />
           <q-item-main label="Twitter" sublabel="@quasarframework" />
         </q-item>
+        <q-item @click.native="logout">
+          <q-item-side icon="fas fa-sign-out-alt" />
+          <q-item-main label="Logout" />
+        </q-item>
       </q-list>
     </q-layout-drawer>
 
@@ -73,7 +77,12 @@ export default {
     }
   },
   methods: {
-    openURL
+    openURL,
+
+    async logout () {
+      await this.$store.dispatch('auth/logout')
+      this.$router.go({ name: 'login' })
+    }
   }
 }
 </script>
