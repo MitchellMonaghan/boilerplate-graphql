@@ -11,12 +11,12 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "apollo-cache-inmemory": "^1.2.6",
-    "apollo-client": "^2.3.7",
+    "apollo-cache-inmemory": "^1.2.9",
+    "apollo-client": "^2.4.1",
     "apollo-link": "^1.2.2",
     "apollo-link-http": "^1.5.4",
     "apollo-link-ws": "^1.0.8",
-    "apollo-utilities": "^1.0.17",
+    "apollo-utilities": "^1.0.20",
     "axios": "^0.18.0",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
@@ -31,12 +31,12 @@
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-loader": "^2.0.0",
-    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-vue": "^4.3.0",
-    "quasar-cli": "^0.17.0",
+    "quasar-cli": "^0.17.15",
     "strip-ansi": "=3.0.1"
   },
   "engines": {
