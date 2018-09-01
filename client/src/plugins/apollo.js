@@ -7,16 +7,32 @@ import { getMainDefinition } from 'apollo-utilities'
 
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import store from 'src/store'
+
 const vuexStore = store()
 
 export default ({ Vue }) => {
   const httpLink = new HttpLink({
     uri: '/graphql',
-    fetch: (uri, options) => {
+    fetch: async (uri, options) => {
       options.headers.authorization = vuexStore.state.auth.token
 
-      var initialRequest = fetch(uri, options)
-      return initialRequest
+      if (vuexStore.state.auth.decodedToken) {
+        const issuedDate = new Date(vuexStore.state.auth.decodedToken.iat * 1000)
+        const expirationDate = new Date(vuexStore.state.auth.decodedToken.exp * 1000)
+
+        const halfLife = new Date((issuedDate.getTime() + expirationDate.getTime()) / 2)
+
+        if (halfLife <= Date.now() && !options.body.includes('refreshToken')) {
+          try {
+            await vuexStore.dispatch('auth/refreshToken')
+            options.headers.authorization = vuexStore.state.auth.token
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
+
+      return fetch(uri, options)
     }
   })
 
@@ -40,7 +56,17 @@ export default ({ Vue }) => {
   const apolloClient = new ApolloClient({
     link,
     cache: new InMemoryCache(),
-    connectToDevTools: true
+    connectToDevTools: true,
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'network-only',
+        errorPolicy: 'ignore'
+      },
+      query: {
+        fetchPolicy: 'network-only',
+        errorPolicy: 'all'
+      }
+    }
   })
 
   Vue.prototype.$apollo = apolloClient

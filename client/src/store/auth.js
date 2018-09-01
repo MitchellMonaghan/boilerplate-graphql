@@ -4,7 +4,8 @@ import gql from 'graphql-tag'
 
 const state = extend({}, {
   user: null,
-  token: null
+  token: null,
+  decodedToken: null
 })
 
 const mutations = extend({}, {
@@ -19,6 +20,7 @@ const mutations = extend({}, {
   setToken (state, token) {
     if (token) {
       state.token = token
+      state.decodedToken = jwt.decode(token)
 
       Cookies.set('token', token, {
         expire: '', // TODO: Set expiration to match token
@@ -27,6 +29,8 @@ const mutations = extend({}, {
       })
     } else {
       state.token = null
+      state.decodedToken = null
+
       Cookies.remove('token')
     }
   }
@@ -39,11 +43,10 @@ const actions = extend({}, {
 
     if (token) {
       await commit('setToken', token)
-      const decodedToken = jwt.decode(token)
 
       // Request user from server
       const response = await this._vm.$apollo.query({
-        variables: decodedToken.user,
+        variables: state.decodedToken.user,
         query: gql`
           query($id: ID!) {
             getUser(id: $id){
@@ -126,7 +129,11 @@ const actions = extend({}, {
       `
     })
 
-    await commit('setToken', response.data.refreshToken)
+    if (response.data) {
+      await commit('setToken', response.data.refreshToken)
+    } else {
+      throw new Error(response.errors[0].message)
+    }
   }
 })
 
