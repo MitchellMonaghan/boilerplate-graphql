@@ -1,7 +1,7 @@
 <template>
   <div class="row items-center" style="min-height:100vh">
     <div class="row col-12 justify-center">
-      <div class="row col-4">
+      <div class="row col-lg-4 col-md-8 col-11">
         <!-- Username -->
           <q-field
             class="row col-12 q-mt-md"
@@ -34,6 +34,10 @@
             />
           </q-field>
         <!-- End password -->
+
+        <div class="row q-pt-md col-12 justify-end">
+          <router-link to="forgotPassword">Forgot Password</router-link>
+        </div>
 
         <div class="row q-pt-xl col-12 justify-end">
           <q-btn  @click="login" label="login" />

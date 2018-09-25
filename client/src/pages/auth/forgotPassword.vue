@@ -1,9 +1,7 @@
 <template>
   <div class="row items-center" style="min-height:100vh">
     <div class="row col-12 justify-center">
-      <div></div>
-
-      <div class="row col-4" v-if="pageState === pageStates.form || pageState === pageStates.invalidToken">
+      <div class="row col-lg-4 col-md-8 col-11" v-if="pageState === pageStates.form || pageState === pageStates.invalidToken">
         <div v-if="pageState === pageStates.invalidToken">Sorry your password reset has expired. Please request a new password reset.</div>
 
         <!-- Email -->
@@ -27,7 +25,7 @@
         </div>
       </div>
 
-      <div class="row col-4" v-if="pageState === pageStates.emailSent">
+      <div class="row col-lg-4 col-md-8 col-11" v-if="pageState === pageStates.emailSent">
         <div>Please check your email.</div>
 
         <div class="row q-pt-xl col-12 justify-end">
